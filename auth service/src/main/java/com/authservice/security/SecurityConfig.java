@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/register", "/register", "/auth/login", "/login",
                                 "/auth/verify-login-otp", "/verify-login-otp").permitAll()
                         .requestMatchers("/auth/mfa", "/mfa", "/auth/logout", "/logout").authenticated()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**", "/error").permitAll()
 
                         // Admin — full access
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

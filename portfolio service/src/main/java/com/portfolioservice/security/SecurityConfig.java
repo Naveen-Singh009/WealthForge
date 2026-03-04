@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Health check - open
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**", "/error").permitAll()
 
                         // Admin-only endpoints
                         .requestMatchers("/api/admin/**")

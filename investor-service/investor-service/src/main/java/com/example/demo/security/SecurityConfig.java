@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/investor/internal/register").permitAll()
 
                         .requestMatchers("/api/investor/**")

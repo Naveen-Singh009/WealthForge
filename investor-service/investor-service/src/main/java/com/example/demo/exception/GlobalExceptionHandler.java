@@ -75,4 +75,18 @@ public class GlobalExceptionHandler {
         return error;
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, Object> handleGenericException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        Map<String, Object> error = new HashMap<>();
+        error.put("time", LocalDateTime.now());
+        error.put("status", 500);
+        error.put("error", ex.getMessage());
+        error.put("path", request.getRequestURI());
+        return error;
+    }
+
 }

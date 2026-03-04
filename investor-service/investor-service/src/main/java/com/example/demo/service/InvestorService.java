@@ -45,7 +45,12 @@ public class InvestorService {
         Investor investor = repo.findById(authenticatedInvestorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Investor not found"));
 
-        StockDTO stock = adminClient.getStock(dto.getSymbol());
+        StockDTO stock;
+        try {
+            stock = adminClient.getStock(dto.getSymbol());
+        } catch (Exception ex) {
+            throw new InvalidDataException("Failed to read stock data from admin-service: " + ex.getMessage());
+        }
         if (stock == null || stock.getCurrentPrice() == null) {
             throw new ResourceNotFoundException("Stock not found");
         }
@@ -56,7 +61,11 @@ public class InvestorService {
         UpdateQuantity update = new UpdateQuantity();
         update.setSymbol(dto.getSymbol());
         update.setQuantity(dto.getQuantity());
-        adminClient.updateQuantityBuy(update);
+        try {
+            adminClient.updateQuantityBuy(update);
+        } catch (Exception ex) {
+            throw new InvalidDataException("Failed to reserve stock quantity in admin-service: " + ex.getMessage());
+        }
 
         PortfolioTradeRequest tradeRequest = new PortfolioTradeRequest();
         tradeRequest.setAssetSymbol(dto.getSymbol());
@@ -104,7 +113,12 @@ public class InvestorService {
         Investor investor = repo.findById(authenticatedInvestorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Investor not found"));
 
-        StockDTO stock = adminClient.getStock(dto.getAssetName());
+        StockDTO stock;
+        try {
+            stock = adminClient.getStock(dto.getAssetName());
+        } catch (Exception ex) {
+            throw new InvalidDataException("Failed to read stock data from admin-service: " + ex.getMessage());
+        }
         if (stock == null || stock.getCurrentPrice() == null) {
             throw new ResourceNotFoundException("Stock not found");
         }
@@ -112,7 +126,11 @@ public class InvestorService {
         UpdateQuantity update = new UpdateQuantity();
         update.setSymbol(dto.getAssetName());
         update.setQuantity(dto.getQuantity());
-        adminClient.updateQuantitySell(update);
+        try {
+            adminClient.updateQuantitySell(update);
+        } catch (Exception ex) {
+            throw new InvalidDataException("Failed to return stock quantity in admin-service: " + ex.getMessage());
+        }
 
         PortfolioTradeRequest tradeRequest = new PortfolioTradeRequest();
         tradeRequest.setAssetSymbol(dto.getAssetName());

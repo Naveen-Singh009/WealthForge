@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Health check — open
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**", "/error").permitAll()
 
                         // === Endpoints called by investor-service via Feign ===
                         // READ: companies & stocks — INVESTOR, ADVISOR, ADMIN allowed
