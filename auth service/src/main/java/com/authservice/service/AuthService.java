@@ -32,6 +32,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final EmailService emailService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final InvestorProfileSyncService investorProfileSyncService;
 
     public MessageResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -51,7 +52,19 @@ public class AuthService {
                 .mfaEnabled(false)
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        try {
+            investorProfileSyncService.createInvestorProfile(
+                    savedUser.getId(),
+                    savedUser.getName(),
+                    savedUser.getEmail(),
+                    request.getInitialBalance());
+        } catch (Exception ex) {
+            userRepository.deleteById(savedUser.getId());
+            throw new IllegalStateException("Registration failed while creating investor profile. Please retry.");
+        }
+
         return new MessageResponse("User registered successfully!");
     }
 

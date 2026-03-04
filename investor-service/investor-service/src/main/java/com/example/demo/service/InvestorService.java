@@ -5,16 +5,13 @@ import com.example.demo.client.AdvisorClient;
 import com.example.demo.client.NotificationClient;
 import com.example.demo.client.PortfolioClient;
 import com.example.demo.dto.*;
-import com.example.demo.entity.Holding;
 import com.example.demo.entity.Investor;
-import com.example.demo.entity.Transaction;
 import com.example.demo.exception.InvalidDataException;
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.repository.HoldingRepository;
 import com.example.demo.repository.InvestorRepository;
-import com.example.demo.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +20,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class InvestorService {
 
+    private static final BigDecimal DEFAULT_INITIAL_BALANCE = BigDecimal.ZERO;
+
     private final InvestorRepository repo;
-    private final TransactionRepository tRepo;
-    private final HoldingRepository hRepo;
     private final NotificationClient notificationClient;
     private final AdvisorClient advisorClient;
     private final AdminClient adminClient;
     private final PortfolioClient portfolioClient;
+
+    @Value("${app.internal.registration-key:WEALTHFORGE_INTERNAL_KEY}")
+    private String internalRegistrationKey;
 
     @Transactional
     public String buyStock(Long authenticatedInvestorId, BuyRequestDTO dto) {
@@ -152,63 +153,19 @@ public class InvestorService {
         return "Stock sold successfully in portfolio " + dto.getPortfolioId();
     }
 
-    @Transactional
-    public String transferMoney(Long authenticatedInvestorId, TransferRequestDTO dto) {
-        if (dto.getFromInvestorId() != null && !dto.getFromInvestorId().equals(authenticatedInvestorId)) {
-            throw new InvalidDataException("You can transfer only from your own account");
+    public String transferBetweenPortfolios(Long authenticatedInvestorId, PortfolioTransferRequest request) {
+        try {
+            Map<String, Object> body = responseBody(
+                    portfolioClient.transferBetweenPortfolios(request),
+                    "transfer funds between portfolios");
+            return extractMessage(body, "Transfer completed successfully");
+        } catch (Exception ex) {
+            throw new InvalidDataException("Transfer failed: " + ex.getMessage());
         }
-
-        Investor fromInvestor = repo.findById(authenticatedInvestorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
-
-        Investor toInvestor = repo.findById(dto.getToInvestorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found"));
-
-        BigDecimal amount = BigDecimal.valueOf(dto.getAmount());
-        if (fromInvestor.getBalance().compareTo(amount) < 0) {
-            throw new InvalidDataException("Insufficient balance");
-        }
-
-        String date = LocalDate.now().toString();
-        fromInvestor.setBalance(fromInvestor.getBalance().subtract(amount));
-        toInvestor.setBalance(toInvestor.getBalance().add(amount));
-        repo.save(fromInvestor);
-        repo.save(toInvestor);
-
-        Transaction senderTransaction = new Transaction();
-        senderTransaction.setInvestorId(fromInvestor.getInvestorId());
-        senderTransaction.setType("TRANSFER_DEBIT");
-        senderTransaction.setAssetName("Fund Transfer");
-        senderTransaction.setQuantity(0);
-        senderTransaction.setPrice(amount);
-        senderTransaction.setDate(date);
-        tRepo.save(senderTransaction);
-
-        Transaction receiverTransaction = new Transaction();
-        receiverTransaction.setInvestorId(toInvestor.getInvestorId());
-        receiverTransaction.setType("TRANSFER_CREDIT");
-        receiverTransaction.setAssetName("Fund Transfer");
-        receiverTransaction.setQuantity(0);
-        receiverTransaction.setPrice(amount);
-        receiverTransaction.setDate(date);
-        tRepo.save(receiverTransaction);
-
-        sendNotificationSafe(fromInvestor.getEmail(), "Fund transfer debit of $" + amount + " completed.");
-        sendNotificationSafe(toInvestor.getEmail(), "Fund transfer credit of $" + amount + " received.");
-
-        return "Transfer successful";
     }
 
     public List<AdvisorDTO> getAdvisorList() {
         return advisorClient.getAdvisors();
-    }
-
-    public List<Transaction> history(Long id) {
-        return tRepo.findByInvestorId(id);
-    }
-
-    public List<Holding> getHolding(Long id) {
-        return hRepo.findByInvestorId(id);
     }
 
     public String getAdvice(String question) {
@@ -251,6 +208,53 @@ public class InvestorService {
         return responseBody(portfolioClient.getOverallPerformance(), "get overall performance");
     }
 
+    public Map<String, Object> getHistory(Long authenticatedInvestorId) {
+        repo.findById(authenticatedInvestorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Investor not found"));
+        return responseBody(portfolioClient.getAllTransactions(), "get transaction history");
+    }
+
+    public Map<String, Object> getPortfolioHistory(Long authenticatedInvestorId, Long portfolioId) {
+        repo.findById(authenticatedInvestorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Investor not found"));
+        return responseBody(portfolioClient.getTransactionsForPortfolio(portfolioId), "get portfolio transaction history");
+    }
+
+    public List<Investor> listAllInvestors() {
+        return repo.findAll();
+    }
+
+    @Transactional
+    public Investor registerInvestorProfile(String internalKey, InvestorRegistrationRequest request) {
+        if (!Objects.equals(internalRegistrationKey, internalKey)) {
+            throw new InvalidDataException("Invalid internal registration key");
+        }
+
+        Long investorId = request.getInvestorId();
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+
+        repo.findByEmail(normalizedEmail)
+                .filter(existing -> !existing.getInvestorId().equals(investorId))
+                .ifPresent(existing -> {
+                    throw new InvalidDataException("Email is already linked to another investor");
+                });
+
+        Investor investor = repo.findById(investorId).orElseGet(Investor::new);
+        boolean isNewInvestor = investor.getInvestorId() == null;
+
+        investor.setInvestorId(investorId);
+        investor.setInvestorName(request.getInvestorName().trim());
+        investor.setEmail(normalizedEmail);
+
+        if (isNewInvestor) {
+            investor.setBalance(defaultInitialBalance(request.getInitialBalance()));
+        } else if (investor.getBalance() == null) {
+            investor.setBalance(defaultInitialBalance(request.getInitialBalance()));
+        }
+
+        return repo.save(investor);
+    }
+
     private void validateInvestorOwnership(Long authenticatedInvestorId, Long requestInvestorId) {
         if (requestInvestorId != null && !requestInvestorId.equals(authenticatedInvestorId)) {
             throw new InvalidDataException("Investor ID in request does not match authenticated user");
@@ -276,6 +280,15 @@ public class InvestorService {
             throw new InvalidDataException("Unable to " + action + ": empty response from portfolio-service");
         }
         return response.getBody();
+    }
+
+    private String extractMessage(Map<String, Object> body, String fallbackMessage) {
+        Object message = body.get("message");
+        return message instanceof String messageText ? messageText : fallbackMessage;
+    }
+
+    private BigDecimal defaultInitialBalance(BigDecimal requestedInitialBalance) {
+        return requestedInitialBalance == null ? DEFAULT_INITIAL_BALANCE : requestedInitialBalance;
     }
 
     private void rollbackAdminQuantitySell(UpdateQuantity update) {

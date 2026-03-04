@@ -10,4 +10,6 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByPortfolioIdOrderByTimestampDesc(Long portfolioId);
+
+    List<Transaction> findByPortfolioIdInOrderByTimestampDesc(List<Long> portfolioIds);
 }

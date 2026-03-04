@@ -3,22 +3,24 @@ package com.example.demo.entity;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "investor")
 public class Investor {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-
+	@Column(name = "investor_id")
 	private Long investorId;
 
+	@Column(name = "investor_name")
 	private String investorName;
 
 	private BigDecimal balance;
 	
+	@Column(unique = true)
 	private String email;
 
 	public String getEmail() {

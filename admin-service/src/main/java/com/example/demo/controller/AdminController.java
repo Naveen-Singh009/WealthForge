@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.dto.InvestorDTO;
 import com.example.demo.entity.Company;
-import com.example.demo.entity.Investor;
 import com.example.demo.entity.Stock;
 import com.example.demo.entity.UpdatePriceDTO;
 import com.example.demo.entity.UpdateQuantity;
@@ -32,8 +32,18 @@ public class AdminController {
         return ResponseEntity.ok(service.listCompanies());
     }
 
+    @GetMapping("/companiesList")
+    public ResponseEntity<List<Company>> companiesList() {
+        return ResponseEntity.ok(service.listCompanies());
+    }
+
     @PostMapping("/companies")
     public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company) {
+        return ResponseEntity.ok(service.addCompany(company));
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<Company> add(@Valid @RequestBody Company company) {
         return ResponseEntity.ok(service.addCompany(company));
     }
 
@@ -43,8 +53,20 @@ public class AdminController {
         return ResponseEntity.ok(service.updateCompany(id, company));
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Company> update(@PathVariable Long id,
+                                          @Valid @RequestBody Company company) {
+        return ResponseEntity.ok(service.updateCompany(id, company));
+    }
+
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<String> deleteCompany(@PathVariable Long id) {
+        service.deleteCompany(id);
+        return ResponseEntity.ok("Company deleted successfully");
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         service.deleteCompany(id);
         return ResponseEntity.ok("Company deleted successfully");
     }
@@ -53,7 +75,12 @@ public class AdminController {
     // ================= INVESTOR APIs =================
 
     @GetMapping("/investors")
-    public ResponseEntity<List<Investor>> listInvestors() {
+    public ResponseEntity<List<InvestorDTO>> listInvestors() {
+        return ResponseEntity.ok(service.listInvestors());
+    }
+
+    @GetMapping("/investorsList")
+    public ResponseEntity<List<InvestorDTO>> investorsList() {
         return ResponseEntity.ok(service.listInvestors());
     }
 

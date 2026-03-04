@@ -21,6 +21,7 @@ public class PortfolioController {
     private final PerformanceService performanceService;
     private final TransferService transferService;
     private final PortfolioTradingService portfolioTradingService;
+    private final TransactionService transactionService;
 
     //Create a new portfolio for the authenticated investor
     @PostMapping
@@ -137,6 +138,25 @@ public class PortfolioController {
         Long investorId = getInvestorId(authentication);
         OverallPerformanceResponse response = performanceService.getOverallPerformance(investorId);
         return ResponseEntity.ok(ApiResponse.ok("Overall performance retrieved", response));
+    }
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getPortfolioTransactions(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        Long investorId = getInvestorId(authentication);
+        List<TransactionResponse> transactions = transactionService.getPortfolioTransactions(investorId, id);
+        return ResponseEntity.ok(ApiResponse.ok("Portfolio transactions retrieved", transactions));
+    }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getAllTransactions(
+            Authentication authentication) {
+
+        Long investorId = getInvestorId(authentication);
+        List<TransactionResponse> transactions = transactionService.getAllTransactionsForInvestor(investorId);
+        return ResponseEntity.ok(ApiResponse.ok("Transaction history retrieved", transactions));
     }
 
 

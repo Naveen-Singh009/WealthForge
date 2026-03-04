@@ -8,7 +8,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,4 +49,10 @@ public interface PortfolioClient {
 
     @GetMapping("/api/portfolios/overall-performance")
     ResponseEntity<Map<String, Object>> getOverallPerformance();
+
+    @GetMapping("/api/portfolios/transactions")
+    ResponseEntity<Map<String, Object>> getAllTransactions();
+
+    @GetMapping("/api/portfolios/{id}/transactions")
+    ResponseEntity<Map<String, Object>> getTransactionsForPortfolio(@PathVariable("id") Long id);
 }

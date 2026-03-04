@@ -17,32 +17,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final JwtAuthFilter jwtAuthFilter;
-	private final AuthEntryPointJwt unauthorizedHandler;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http
-				.csrf(AbstractHttpConfigurer::disable)
+        http
+                .csrf(AbstractHttpConfigurer::disable)
 
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
 
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-				.authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
 
-						.requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/api/investor/internal/register").permitAll()
 
-						// Investor endpoints — INVESTOR, ADVISOR, or ADMIN role required
-						.requestMatchers("/api/investor/**")
-						.hasAnyAuthority("ROLE_INVESTOR", "ROLE_ADVISOR", "ROLE_ADMIN")
+                        .requestMatchers("/api/investor/**")
+                        .hasAnyAuthority("ROLE_INVESTOR", "ROLE_ADVISOR", "ROLE_ADMIN")
 
-						// Everything else requires authentication
-						.anyRequest().authenticated())
+                        .anyRequest().authenticated())
 
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 }

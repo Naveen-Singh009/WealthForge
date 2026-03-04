@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class HoldingService {
 
     private final HoldingRepository holdingRepository;
-    private final MockMarketDataService marketDataService;
+    private final MarketPriceService marketPriceService;
 
     //Get all holdings for a portfolio enriched with current price and P&L.
 
@@ -27,7 +27,7 @@ public class HoldingService {
     }
 
     private HoldingResponse mapToResponse(Holding h) {
-        BigDecimal currentPrice = marketDataService.getPrice(h.getAssetSymbol());
+        BigDecimal currentPrice = marketPriceService.getCurrentPrice(h.getAssetSymbol(), h.getAveragePrice());
         BigDecimal currentValue = currentPrice.multiply(h.getQuantity()).setScale(6, RoundingMode.HALF_UP);
         BigDecimal investedValue = h.getAveragePrice().multiply(h.getQuantity()).setScale(6, RoundingMode.HALF_UP);
         BigDecimal profitLoss = currentValue.subtract(investedValue);

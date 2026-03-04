@@ -33,6 +33,11 @@ public class AdvisorController {
     public List<Long> listAllocated(@PathVariable Long advisorId) {
         return service.getAllocatedInvestors(advisorId);
     }
+
+    @GetMapping("/list")
+    public List<Long> listAllocatedByQuery(@RequestParam Long advisorId) {
+        return service.getAllocatedInvestors(advisorId);
+    }
     
     @GetMapping("/list/all")
     public List<Advisor> listAllAdvicor() {
@@ -41,6 +46,15 @@ public class AdvisorController {
 
     @PostMapping("/suggest/{advisorId}")
     public String suggest(
+            @PathVariable Long advisorId,
+            @RequestBody List<AdviceRequest> requests) {
+
+        service.giveAdvice(advisorId, requests);
+        return "Advice saved successfully";
+    }
+
+    @PostMapping("/advice/{advisorId}")
+    public String advice(
             @PathVariable Long advisorId,
             @RequestBody List<AdviceRequest> requests) {
 

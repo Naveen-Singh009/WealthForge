@@ -58,8 +58,9 @@ public class SecurityConfig {
 
                 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/verify-login-otp").permitAll()
-                        .requestMatchers("/auth/mfa", "/auth/logout").authenticated()
+                        .requestMatchers("/auth/register", "/register", "/auth/login", "/login",
+                                "/auth/verify-login-otp", "/verify-login-otp").permitAll()
+                        .requestMatchers("/auth/mfa", "/mfa", "/auth/logout", "/logout").authenticated()
                         .requestMatchers("/actuator/**").permitAll()
 
                         // Admin — full access

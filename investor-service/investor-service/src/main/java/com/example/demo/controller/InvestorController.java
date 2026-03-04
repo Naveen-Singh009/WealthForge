@@ -1,13 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.*;
-import com.example.demo.entity.Holding;
-import com.example.demo.entity.Transaction;
+import com.example.demo.entity.Investor;
 import com.example.demo.exception.InvalidDataException;
 import com.example.demo.service.InvestorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +27,11 @@ public class InvestorController {
 
     @GetMapping("/stockList")
     public List<StockDTO> getStocks() {
+        return service.getStockList();
+    }
+
+    @GetMapping("/list")
+    public List<StockDTO> listMarketStocks() {
         return service.getStockList();
     }
 
@@ -51,26 +56,25 @@ public class InvestorController {
     }
 
     @PostMapping("/transfer")
-    public String transfer(@Valid @RequestBody TransferRequestDTO dto, Authentication authentication) {
-        return service.transferMoney(getAuthenticatedInvestorId(authentication), dto);
+    public String transfer(@Valid @RequestBody PortfolioTransferRequest request, Authentication authentication) {
+        return service.transferBetweenPortfolios(getAuthenticatedInvestorId(authentication), request);
     }
 
-    @GetMapping("/transactions/{investorId}")
-    public List<Transaction> history(@PathVariable Long investorId, Authentication authentication) {
-        Long authInvestorId = getAuthenticatedInvestorId(authentication);
-        if (!authInvestorId.equals(investorId)) {
-            throw new InvalidDataException("You can only view your own transactions");
-        }
-        return service.history(authInvestorId);
+    @GetMapping("/history")
+    public Map<String, Object> history(Authentication authentication) {
+        return service.getHistory(getAuthenticatedInvestorId(authentication));
     }
 
-    @GetMapping("/holding/{investorId}")
-    public List<Holding> getHolding(@PathVariable Long investorId, Authentication authentication) {
-        Long authInvestorId = getAuthenticatedInvestorId(authentication);
-        if (!authInvestorId.equals(investorId)) {
-            throw new InvalidDataException("You can only view your own holdings");
-        }
-        return service.getHolding(authInvestorId);
+    @GetMapping("/history/{portfolioId}")
+    public Map<String, Object> portfolioHistory(@PathVariable Long portfolioId, Authentication authentication) {
+        return service.getPortfolioHistory(getAuthenticatedInvestorId(authentication), portfolioId);
+    }
+
+    @PostMapping("/internal/register")
+    public Investor registerInvestorProfile(
+            @RequestHeader("X-Internal-Key") String internalKey,
+            @Valid @RequestBody InvestorRegistrationRequest request) {
+        return service.registerInvestorProfile(internalKey, request);
     }
 
     @GetMapping("/advisor/list/all")
@@ -111,6 +115,12 @@ public class InvestorController {
     @GetMapping("/portfolios/overall-performance")
     public Map<String, Object> getOverallPerformance() {
         return service.getOverallPerformance();
+    }
+
+    @GetMapping("/investors")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public List<Investor> listAllInvestors() {
+        return service.listAllInvestors();
     }
 
     private Long getAuthenticatedInvestorId(Authentication authentication) {
