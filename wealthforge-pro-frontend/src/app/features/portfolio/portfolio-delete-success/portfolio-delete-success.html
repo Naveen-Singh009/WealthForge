@@ -1,0 +1,19 @@
+<section class="wf-card transfer-success">
+  <div class="text-center mb-3">
+    <i class="bi bi-check-circle-fill text-success fs-1"></i>
+    <h2 class="mt-2 mb-1">Portfolio Deleted</h2>
+    <p class="text-muted mb-0">Your money is transferred to your bank account successfully.</p>
+  </div>
+
+  <div class="alert alert-success text-center">
+    Transferred Amount: <strong>{{ transferredAmount | currency:'USD':'symbol':'1.0-0' }}</strong>
+  </div>
+
+  <p class="text-center mb-4" *ngIf="portfolioName">
+    Closed Portfolio: <strong>{{ portfolioName }}</strong>
+  </p>
+
+  <div class="text-center">
+    <a class="btn btn-emerald" routerLink="/investor/portfolio">Back to Portfolios</a>
+  </div>
+</section>

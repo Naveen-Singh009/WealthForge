@@ -1,0 +1,85 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Advisor Desk</h2>
+      <p>{{ isInvestor ? 'Select an advisor and start chatting instantly.' : 'Explore advisors and assign one to your account.' }}</p>
+    </div>
+  </div>
+
+  <div class="wf-card mb-3">
+    <h5 class="mb-3">{{ isInvestor ? 'Chat with Advisor' : 'Allocate Advisor' }}</h5>
+    <form [formGroup]="allocationForm" (ngSubmit)="allocate()" class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label" for="advisorId">Advisor</label>
+        <select id="advisorId" class="form-select" formControlName="advisorId">
+          <option [ngValue]="0">Select Advisor</option>
+          <option *ngFor="let advisor of advisors" [ngValue]="advisor.id">
+            {{ advisor.name }}
+          </option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <button class="btn btn-emerald" type="submit">{{ isInvestor ? 'Chat' : 'Allocate' }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="wf-card" *ngIf="!isInChatMode">
+    <h5 class="mb-3">Available Advisors</h5>
+    <div class="table-responsive">
+      <table class="table wf-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let advisor of advisors">
+            <td>{{ advisor.name }}</td>
+            <td>{{ advisor.email }}</td>
+            <td>{{ advisor.phone }}</td>
+            <td>
+              <span [ngClass]="isAllocated(advisor.id) ? 'badge text-bg-success' : 'badge text-bg-secondary'">
+                {{ isAllocated(advisor.id) ? 'Allocated' : 'Available' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wf-card" *ngIf="isInChatMode && activeChatAdvisor">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Chat with {{ activeChatAdvisor.name }}</h5>
+      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="exitChat()">Change Advisor</button>
+    </div>
+
+    <div class="chat-window mb-3">
+      <div class="chat-message" *ngFor="let message of activeChatMessages" [ngClass]="{
+        'chat-message-investor': message.sender === 'INVESTOR',
+        'chat-message-advisor': message.sender === 'ADVISOR',
+        'chat-message-system': message.sender === 'SYSTEM'
+      }">
+        <div class="chat-message-meta">{{ message.sender }} | {{ message.timestamp | date: 'shortTime' }}</div>
+        <div>{{ message.text }}</div>
+      </div>
+      <div class="chat-message chat-message-advisor chat-typing" *ngIf="isAdvisorTyping">
+        <div class="chat-message-meta">ADVISOR | typing...</div>
+        <div>...</div>
+      </div>
+    </div>
+
+    <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" class="row g-2 align-items-start">
+      <div class="col-12 col-md-9">
+        <input type="text" formControlName="message" class="form-control" maxlength="500" placeholder="Type your message..." />
+      </div>
+      <div class="col-12 col-md-3 d-grid">
+        <button type="submit" class="btn btn-emerald">Send</button>
+      </div>
+    </form>
+  </div>
+</section>

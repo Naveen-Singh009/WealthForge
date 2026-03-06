@@ -1,0 +1,52 @@
+<div class="auth-page">
+  <div class="auth-panel wf-card">
+    <h2>Sign In</h2>
+    <p *ngIf="!otpRequired">Access your secure investment workspace.</p>
+    <p *ngIf="otpRequired">Enter the 6-digit OTP sent to {{ otpEmail || email.value }}.</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate *ngIf="!otpRequired">
+      <div class="mb-3">
+        <label class="form-label" for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" class="form-control" formControlName="email" />
+        <small class="text-danger" *ngIf="email.touched && email.invalid">Valid email is required.</small>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" class="form-control" formControlName="password" />
+        <small class="text-danger" *ngIf="password.touched && password.invalid">
+          Password must be at least 6 characters.
+        </small>
+      </div>
+
+      <button class="btn btn-emerald w-100" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Signing In...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <form [formGroup]="otpForm" (ngSubmit)="submit()" novalidate *ngIf="otpRequired">
+      <div class="mb-3">
+        <label class="form-label" for="loginOtp">One-Time Password</label>
+        <input id="loginOtp" type="text" maxlength="6" class="form-control" formControlName="otp" />
+        <small class="text-danger" *ngIf="otp.touched && otp.invalid">
+          Enter a valid 6-digit OTP.
+        </small>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-emerald flex-grow-1" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Verifying...' : 'Verify OTP' }}
+        </button>
+        <button class="btn btn-outline-light" type="button" (click)="backToPasswordLogin()" [disabled]="submitting">
+          Back
+        </button>
+      </div>
+    </form>
+
+    <div class="auth-link" *ngIf="!otpRequired">
+      New user?
+      <a routerLink="/register">Create account</a>
+    </div>
+  </div>
+</div>
+

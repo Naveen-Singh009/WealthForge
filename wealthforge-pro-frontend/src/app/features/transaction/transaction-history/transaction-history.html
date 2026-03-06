@@ -1,0 +1,51 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Transaction History</h2>
+      <p>Review all buy/sell activities with date filters.</p>
+    </div>
+    <a class="btn btn-emerald" routerLink="/investor/buy-sell">Buy / Sell</a>
+  </div>
+
+  <div class="wf-card mb-3">
+    <form [formGroup]="filterForm" class="row g-3 align-items-end" (ngSubmit)="loadTransactions()">
+      <div class="col-md-4">
+        <label class="form-label" for="fromDate">From</label>
+        <input id="fromDate" type="date" class="form-control" formControlName="fromDate" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="toDate">To</label>
+        <input id="toDate" type="date" class="form-control" formControlName="toDate" />
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-outline-light" type="submit">Apply Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="wf-card">
+    <div class="table-responsive">
+      <table class="table wf-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Stock</th>
+            <th>Amount</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of transactions">
+            <td [ngClass]="tx.type === 'BUY' ? 'text-profit' : 'text-loss'">{{ tx.type }}</td>
+            <td>{{ tx.assetSymbol }}</td>
+            <td>{{ tx.amount | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ tx.timestamp | date:'medium' }}</td>
+          </tr>
+          <tr *ngIf="transactions.length === 0">
+            <td colspan="4" class="text-center text-muted py-4">No transactions found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

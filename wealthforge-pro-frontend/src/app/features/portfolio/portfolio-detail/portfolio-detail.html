@@ -1,0 +1,132 @@
+<section *ngIf="portfolio as data">
+  <div class="wf-page-title">
+    <div>
+      <h2>{{ data.name }}</h2>
+      <p>Portfolio ID #{{ data.id }}</p>
+    </div>
+    <a class="btn btn-outline-light" routerLink="/investor/portfolio">Back</a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <app-reusable-card title="Balance" [value]="data.balance | currency:'USD':'symbol':'1.0-0'" subtitle="Available cash" icon="bi-wallet-fill"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="Investment" [value]="(data.totalInvestment ?? data.balance) | currency:'USD':'symbol':'1.0-0'" subtitle="Total allocated" icon="bi-currency-dollar"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="P/L" [value]="(data.profitLoss ?? 0) | currency:'USD':'symbol':'1.0-0'" [trendClass]="(data.profitLoss ?? 0) >= 0 ? 'profit' : 'loss'" subtitle="Overall return" icon="bi-graph-up-arrow"></app-reusable-card>
+    </div>
+  </div>
+
+  <div class="wf-card mb-3">
+    <h5 class="mb-3">Portfolio Holdings</h5>
+    <div class="table-responsive">
+      <table class="table wf-table align-middle">
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Quantity</th>
+            <th>Avg Price</th>
+            <th>Current Value</th>
+            <th class="text-end" *ngIf="userRole === 'INVESTOR' && holdings.length > 0">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let holding of holdings">
+            <td>{{ holding.assetSymbol }}</td>
+            <td>{{ holding.quantity }}</td>
+            <td>{{ (holding.averagePrice ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ (holding.currentValue ?? 0) | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td class="text-end" *ngIf="userRole === 'INVESTOR' && holdings.length > 0">
+              <button
+                class="btn btn-outline-danger btn-sm"
+                type="button"
+                (click)="openSellModal(holding)"
+                [disabled]="holding.quantity <= 0"
+              >
+                Sell
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="holdings.length === 0">
+            <td colspan="4" class="text-center py-4">
+              <div class="empty-holdings">
+                <p class="text-muted mb-2">No holdings available for this portfolio.</p>
+                <a
+                  *ngIf="userRole === 'INVESTOR'"
+                  class="btn btn-emerald btn-sm"
+                  routerLink="/investor/buy-sell"
+                  [queryParams]="{ portfolioId: portfolioId }"
+                >
+                  Buy Your First Stock
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wf-card" *ngIf="userRole === 'INVESTOR'">
+    <h5 class="mb-2">Portfolio Actions</h5>
+    <p class="text-muted mb-3">
+      Assets are added through the Buy/Sell module to keep pricing and transactions accurate.
+    </p>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-emerald" routerLink="/investor/buy-sell" [queryParams]="{ portfolioId: portfolioId }">
+        Buy / Sell Assets
+      </a>
+      <a class="btn btn-outline-secondary" routerLink="/investor/transactions">
+        View Transactions
+      </a>
+    </div>
+  </div>
+</section>
+
+<section *ngIf="!portfolio" class="wf-card">
+  <p class="mb-0 text-muted">Portfolio details unavailable.</p>
+</section>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showSellModal }" *ngIf="showSellModal">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">Sell Stock</h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeSellModal()"></button>
+      </div>
+      <form [formGroup]="sellForm" (ngSubmit)="submitSell()" novalidate>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="sellSymbol">Stock Symbol</label>
+            <input id="sellSymbol" type="text" class="form-control" formControlName="symbol" readonly />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="sellQty">Quantity</label>
+            <input id="sellQty" type="number" class="form-control" formControlName="quantity" />
+            <small class="text-danger" *ngIf="sellForm.controls.quantity.touched && sellForm.controls.quantity.hasError('required')">
+              Quantity is required.
+            </small>
+            <small class="text-danger" *ngIf="sellForm.controls.quantity.touched && sellForm.controls.quantity.hasError('min')">
+              Quantity must be at least 1.
+            </small>
+            <small class="text-danger" *ngIf="sellForm.controls.quantity.touched && sellForm.controls.quantity.hasError('max')">
+              Quantity exceeds available holdings.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-light" (click)="closeSellModal()" [disabled]="sellSubmitting">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-danger" [disabled]="sellSubmitting">
+            {{ sellSubmitting ? 'Selling...' : 'Sell Stock' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="showSellModal"></div>

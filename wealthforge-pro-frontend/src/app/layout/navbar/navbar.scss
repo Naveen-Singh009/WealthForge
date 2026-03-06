@@ -1,0 +1,61 @@
+﻿.top-nav {
+  height: var(--wf-navbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.2rem;
+  background: rgba(7, 11, 22, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #f8fafc;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.72rem;
+      color: #d3d9e5;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--wf-accent-emerald);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+    }
+  }
+
+  .nav-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.55);
+    color: #6ee7b7;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}

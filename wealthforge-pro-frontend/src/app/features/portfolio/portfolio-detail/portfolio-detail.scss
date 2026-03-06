@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+.empty-holdings {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.modal {
+  background-color: rgba(0, 0, 0, 0.35);
+}

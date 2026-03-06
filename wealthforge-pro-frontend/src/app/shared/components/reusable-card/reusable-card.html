@@ -1,0 +1,10 @@
+﻿<div class="wf-card stat-card" [ngClass]="trendClass">
+  <div class="card-head">
+    <div>
+      <p class="label">{{ title }}</p>
+      <h3 class="value">{{ value | emptyState: '-' }}</h3>
+    </div>
+    <i class="bi" [ngClass]="icon"></i>
+  </div>
+  <p class="subtitle">{{ subtitle | emptyState: 'No data available' }}</p>
+</div>

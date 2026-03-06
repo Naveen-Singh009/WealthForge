@@ -1,0 +1,111 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Portfolios</h2>
+      <p>Manage all investment books with enterprise controls.</p>
+    </div>
+    <a class="btn btn-emerald" routerLink="/investor/portfolio/create">
+      <i class="bi bi-plus-circle"></i>
+      Create Portfolio
+    </a>
+  </div>
+
+  <div class="wf-card">
+    <div class="table-responsive">
+      <table class="table wf-table align-middle">
+        <thead>
+          <tr>
+            <th>Portfolio ID</th>
+            <th role="button" (click)="sortBy('name')">Name</th>
+            <th role="button" (click)="sortBy('balance')">Balance</th>
+            <th role="button" (click)="sortBy('createdAt')">Created</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let portfolio of pagedPortfolios">
+            <td>#{{ portfolio.id }}</td>
+            <td>
+              <a [routerLink]="['/investor/portfolio', portfolio.id]" class="portfolio-link fw-semibold text-decoration-none">
+                {{ portfolio.name }}
+              </a>
+            </td>
+            <td>{{ portfolio.balance | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td>{{ portfolio.createdAt | date:'mediumDate' }}</td>
+            <td class="text-end">
+              <a [routerLink]="['/investor/portfolio', portfolio.id]" class="btn btn-outline-primary btn-sm me-2">View</a>
+              <button class="btn btn-warning btn-sm fw-semibold" type="button" (click)="openEditModal(portfolio)">Edit</button>
+            </td>
+          </tr>
+          <tr *ngIf="pagedPortfolios.length === 0">
+            <td colspan="5" class="text-center text-muted py-4">No portfolios available.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager mt-3 d-flex justify-content-between align-items-center">
+      <small class="text-muted">Page {{ page }} of {{ totalPages }}</small>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="previousPage()" [disabled]="page === 1">
+          Previous
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="nextPage()" [disabled]="page === totalPages">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" tabindex="-1" [ngClass]="{ 'show d-block': showEditModal }" *ngIf="showEditModal">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Portfolio</h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeEditModal()"></button>
+      </div>
+
+      <form [formGroup]="editPortfolioForm" (ngSubmit)="savePortfolioChanges()" novalidate>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="portfolioName">Portfolio Name</label>
+            <input id="portfolioName" class="form-control" type="text" formControlName="name" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="additionalBalance">Add Balance</label>
+            <input id="additionalBalance" class="form-control" type="number" formControlName="additionalBalance" />
+            <small class="text-muted">Enter amount to add to current portfolio balance.</small>
+          </div>
+
+          <div class="alert alert-warning mb-0">
+            Deleting this portfolio will transfer available balance to your bank account.
+          </div>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            (click)="deleteSelectedPortfolio()"
+            [disabled]="savingChanges || deletingPortfolio"
+          >
+            {{ deletingPortfolio ? 'Deleting...' : 'Delete Portfolio' }}
+          </button>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-light" (click)="closeEditModal()" [disabled]="savingChanges || deletingPortfolio">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-emerald" [disabled]="savingChanges || deletingPortfolio">
+              {{ savingChanges ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="showEditModal"></div>

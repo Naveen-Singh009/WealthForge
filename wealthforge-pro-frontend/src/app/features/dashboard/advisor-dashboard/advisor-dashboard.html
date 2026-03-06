@@ -1,0 +1,45 @@
+﻿<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Advisor Dashboard</h2>
+      <p>Track allocations and support investor growth.</p>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <app-reusable-card title="Active Advisors" [value]="advisors.length.toString()" subtitle="Registered professionals" icon="bi-person-badge-fill"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="Assigned Investors" value="--" subtitle="Mapped via allocation APIs" icon="bi-diagram-3-fill"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="Advisory Signals" value="--" subtitle="Pending recommendations" icon="bi-lightbulb-fill"></app-reusable-card>
+    </div>
+  </div>
+
+  <div class="wf-card mt-3">
+    <h5 class="mb-3">Advisor Directory</h5>
+    <div class="table-responsive">
+      <table class="table wf-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let advisor of advisors">
+            <td>{{ advisor.name }}</td>
+            <td>{{ advisor.email }}</td>
+            <td>{{ advisor.phone }}</td>
+          </tr>
+          <tr *ngIf="advisors.length === 0">
+            <td colspan="3" class="text-center text-muted py-4">No advisors found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,90 @@
+<aside class="left-nav">
+  <ul>
+    <ng-container *ngIf="role === 'ADMIN'">
+      <li>
+        <a routerLink="/admin/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/portfolios" routerLinkActive="active">
+          <i class="bi bi-briefcase-fill"></i>
+          <span>All Portfolios</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/stocks" routerLinkActive="active">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span>Manage Stocks</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/advisors" routerLinkActive="active">
+          <i class="bi bi-person-workspace"></i>
+          <span>Advisors</span>
+        </a>
+      </li>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'INVESTOR'">
+      <li>
+        <a routerLink="/investor/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/investor/portfolio" routerLinkActive="active">
+          <i class="bi bi-briefcase-fill"></i>
+          <span>My Portfolio</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/investor/stocks" routerLinkActive="active">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span>Market Stocks</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/investor/buy-sell" routerLinkActive="active">
+          <i class="bi bi-arrow-left-right"></i>
+          <span>Buy/Sell</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/investor/transactions" routerLinkActive="active">
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Transactions</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/investor/chat-advisor" routerLinkActive="active">
+          <i class="bi bi-chat-dots-fill"></i>
+          <span>Chat with Advisor</span>
+        </a>
+      </li>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'ADVISOR'">
+      <li>
+        <a routerLink="/advisor/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/advisor/assigned-investors" routerLinkActive="active">
+          <i class="bi bi-people-fill"></i>
+          <span>Assigned Investors</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/advisor/portfolio-insights" routerLinkActive="active">
+          <i class="bi bi-graph-up-arrow"></i>
+          <span>Portfolio Insights</span>
+        </a>
+      </li>
+    </ng-container>
+  </ul>
+</aside>

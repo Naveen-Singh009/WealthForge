@@ -1,0 +1,83 @@
+@use 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --wf-navbar-height: 64px;
+  --wf-sidebar-width: 250px;
+  --wf-bg-primary: #f5f7fb;
+  --wf-text-primary: #1f2937;
+  --wf-text-muted: #475569;
+  --wf-accent-emerald: #198754;
+  --wf-success: #198754;
+  --wf-danger: #dc3545;
+}
+
+body {
+  background-color: #f5f7fb;
+  color: #212529;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.wf-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+}
+
+.wf-page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #212529;
+  }
+
+  p {
+    margin: 0;
+    color: #6c757d;
+  }
+}
+
+.wf-table {
+  --bs-table-bg: transparent;
+  --bs-table-border-color: #dee2e6;
+  margin-bottom: 0;
+}
+
+.btn-emerald {
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+}
+
+.btn-emerald:hover {
+  background-color: #157347;
+  border-color: #146c43;
+  color: #fff;
+}
+
+.text-profit {
+  color: #198754 !important;
+}
+
+.text-loss {
+  color: #dc3545 !important;
+}
+
+.chart-placeholder {
+  height: 220px;
+  border: 1px dashed #ced4da;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  background: #fff;
+}

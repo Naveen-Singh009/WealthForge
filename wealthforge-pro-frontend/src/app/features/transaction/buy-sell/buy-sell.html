@@ -1,0 +1,98 @@
+<section class="wf-card trade-panel">
+  <div class="wf-page-title mb-3">
+    <div>
+      <h2>Buy / Sell Asset</h2>
+      <p>Execute trades securely through the gateway API.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="tradeForm" (ngSubmit)="submit()" class="row g-3" novalidate>
+    <div class="col-md-4">
+      <label class="form-label" for="tradeType">Type</label>
+      <select id="tradeType" class="form-select" formControlName="type">
+        <option value="BUY">BUY</option>
+        <option value="SELL">SELL</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label" for="tradePortfolio">Portfolio</label>
+      <select id="tradePortfolio" class="form-select" formControlName="portfolioId">
+        <option [ngValue]="0" disabled *ngIf="portfolios.length === 0">No portfolio available</option>
+        <option *ngFor="let portfolio of portfolios" [ngValue]="portfolio.id">
+          {{ portfolio.name }} (#{{ portfolio.id }})
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label" for="tradeStock">Stock Symbol</label>
+      <input id="tradeStock" type="text" class="form-control" formControlName="symbol" />
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label" for="tradeQty">Quantity</label>
+      <input id="tradeQty" type="number" class="form-control" formControlName="quantity" />
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-emerald" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Processing...' : 'Execute Trade' }}
+      </button>
+      <a class="btn btn-outline-light" routerLink="/investor/transactions">View History</a>
+    </div>
+  </form>
+
+  <hr class="my-4" />
+
+  <div class="market-panel">
+    <h5 class="mb-3">All Stocks</h5>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-8">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by symbol, name, or sector"
+          [value]="stockSearch"
+          (input)="stockSearch = $any($event.target).value"
+        />
+      </div>
+      <div class="col-md-4">
+        <button type="button" class="btn btn-outline-primary w-100" (click)="searchStocks()">Search</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table wf-table align-middle">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Sector</th>
+            <th>Price</th>
+            <th>Available</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stock of filteredStocks">
+            <td>{{ stock.symbol }}</td>
+            <td>{{ stock.name || stock.symbol }}</td>
+            <td>{{ stock.sector || 'N/A' }}</td>
+            <td>{{ stock.currentPrice | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ stock.availableQuantity ?? 0 }}</td>
+            <td class="text-end">
+              <button class="btn btn-emerald btn-sm" type="button" (click)="chooseStockForBuy(stock)">
+                Buy
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredStocks.length === 0">
+            <td colspan="6" class="text-center text-muted py-4">No stocks found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

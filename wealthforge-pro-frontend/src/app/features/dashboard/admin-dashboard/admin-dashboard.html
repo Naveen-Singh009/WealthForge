@@ -1,0 +1,71 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Admin Command Center</h2>
+      <p>Create privileged users and manage platform operations.</p>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <app-reusable-card title="Role Scope" value="ADMIN" subtitle="Full access" icon="bi-shield-lock-fill"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="Advisor Sync" value="Enabled" subtitle="Auto profile creation" icon="bi-person-check-fill"></app-reusable-card>
+    </div>
+    <div class="col-md-4">
+      <app-reusable-card title="Total Portfolios" [value]="totalPortfolios.toString()" subtitle="Across all investors" icon="bi-briefcase-fill"></app-reusable-card>
+    </div>
+  </div>
+
+  <div class="wf-card mt-3">
+    <h5 class="mb-3">Create Admin or Advisor</h5>
+
+    <form [formGroup]="createUserForm" (ngSubmit)="submitCreateUser()" class="row g-3" novalidate>
+      <div class="col-md-6">
+        <label class="form-label" for="createName">Full Name</label>
+        <input id="createName" type="text" class="form-control" formControlName="name" />
+        <small class="text-danger" *ngIf="createUserForm.controls.name.touched && createUserForm.controls.name.invalid">
+          Name must be at least 2 characters.
+        </small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="createRole">Role</label>
+        <select id="createRole" class="form-select" formControlName="role">
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="createEmail">Email</label>
+        <input id="createEmail" type="email" class="form-control" formControlName="email" />
+        <small class="text-danger" *ngIf="createUserForm.controls.email.touched && createUserForm.controls.email.invalid">
+          Enter a valid email.
+        </small>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="createPassword">Password</label>
+        <input id="createPassword" type="password" class="form-control" formControlName="password" />
+        <small class="text-danger" *ngIf="createUserForm.controls.password.touched && createUserForm.controls.password.invalid">
+          Password must be at least 6 characters.
+        </small>
+      </div>
+
+      <div class="col-md-6" *ngIf="isAdvisorSelected">
+        <label class="form-label" for="createPhone">Phone (Advisor only)</label>
+        <input id="createPhone" type="text" class="form-control" formControlName="phone" />
+        <small class="text-danger" *ngIf="createUserForm.controls.phone.touched && createUserForm.controls.phone.invalid">
+          Phone is required for advisor profile sync.
+        </small>
+      </div>
+
+      <div class="col-12">
+        <button class="btn btn-emerald" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Creating...' : 'Create User' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

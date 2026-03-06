@@ -1,0 +1,181 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Stock Market</h2>
+      <p>{{ userRole === 'ADMIN' ? 'Manage stock master data.' : 'Track stocks, search instruments, and maintain your watchlist.' }}</p>
+    </div>
+  </div>
+
+  <div class="wf-card mb-3" *ngIf="userRole === 'ADMIN'">
+    <h5 class="mb-3">Create Stock</h5>
+    <form [formGroup]="createStockForm" (ngSubmit)="createStock()" class="row g-3" novalidate>
+      <div class="col-md-3">
+        <label class="form-label" for="stockSymbol">Symbol</label>
+        <input id="stockSymbol" class="form-control" formControlName="symbol" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="stockName">Name</label>
+        <input id="stockName" class="form-control" formControlName="name" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="stockSector">Sector</label>
+        <input id="stockSector" class="form-control" formControlName="sector" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="stockPrice">Price</label>
+        <input id="stockPrice" type="number" class="form-control" formControlName="currentPrice" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="stockQty">Quantity</label>
+        <input id="stockQty" type="number" class="form-control" formControlName="availableQuantity" />
+      </div>
+      <div class="col-12">
+        <button class="btn btn-emerald" type="submit" [disabled]="creatingStock">
+          {{ creatingStock ? 'Creating...' : 'Create Stock' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="wf-card mb-3">
+    <div class="d-flex gap-2">
+      <input class="form-control" placeholder="Search stock by name" [(ngModel)]="query" />
+      <button class="btn btn-emerald" type="button" (click)="search()">Search</button>
+    </div>
+  </div>
+
+  <div class="wf-card mb-3" *ngIf="userRole === 'ADMIN' && editingStockId !== null">
+    <h5 class="mb-3">Edit Stock</h5>
+    <form [formGroup]="editStockForm" (ngSubmit)="saveEdit()" class="row g-3" novalidate>
+      <div class="col-md-3">
+        <label class="form-label" for="editStockSymbol">Symbol</label>
+        <input id="editStockSymbol" class="form-control" formControlName="symbol" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="editStockName">Name</label>
+        <input id="editStockName" class="form-control" formControlName="name" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="editStockSector">Sector</label>
+        <input id="editStockSector" class="form-control" formControlName="sector" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="editStockPrice">Price</label>
+        <input id="editStockPrice" type="number" class="form-control" formControlName="currentPrice" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="editStockQty">Quantity</label>
+        <input id="editStockQty" type="number" class="form-control" formControlName="availableQuantity" />
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-warning fw-semibold" type="submit" [disabled]="updatingStock">
+          {{ updatingStock ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="wf-card">
+        <div class="table-responsive">
+          <table class="table wf-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Sector</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let stock of stocks">
+                <td>{{ stock.symbol }}</td>
+                <td>{{ stock.name || stock.symbol }}</td>
+                <td>{{ stock.sector || 'N/A' }}</td>
+                <td>{{ stock.currentPrice | currency:'USD':'symbol':'1.2-2' }}</td>
+                <td>{{ stock.availableQuantity ?? 0 }}</td>
+                <td class="text-end">
+                  <button
+                    *ngIf="userRole === 'ADMIN'; else watchAction"
+                    class="btn btn-warning btn-sm fw-semibold"
+                    type="button"
+                    (click)="beginEdit(stock)">
+                    Edit
+                  </button>
+                  <ng-template #watchAction>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addToWatchlist(stock)">
+                      Watch
+                    </button>
+                  </ng-template>
+                </td>
+              </tr>
+              <tr *ngIf="stocks.length === 0">
+                <td colspan="6" class="text-center text-muted py-4">No stocks available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="wf-card mb-3" *ngIf="userRole !== 'ADMIN'">
+        <h5 class="mb-3">Market Watchlist</h5>
+        <div
+          class="watch-item"
+          role="button"
+          tabindex="0"
+          *ngFor="let stock of watchlist"
+          (click)="selectTrendStock(stock)"
+        >
+          <span>{{ stock.symbol }} - {{ stock.name }}</span>
+          <strong>{{ stock.currentPrice | currency:'USD':'symbol':'1.2-2' }}</strong>
+        </div>
+        <p class="text-muted mb-0" *ngIf="watchlist.length === 0">No stocks in watchlist.</p>
+      </div>
+
+      <div class="wf-card" *ngIf="userRole !== 'ADMIN'">
+        <h5 class="mb-2">Relative Snapshot</h5>
+        <p class="text-muted mb-3">Current stock position against market averages.</p>
+
+        <ng-container *ngIf="trendStock as stock; else noTrendData">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <strong class="d-block">{{ stock.symbol }}</strong>
+              <small class="text-muted">{{ stock.name || stock.symbol }}</small>
+            </div>
+            <span class="fw-semibold">{{ stock.currentPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="relative-row">
+            <span>vs Market Avg</span>
+            <strong [ngClass]="trendClass(trendVsMarketPercent)">{{ formatSignedPercent(trendVsMarketPercent) }}</strong>
+          </div>
+
+          <div class="relative-row">
+            <span>vs Sector Avg</span>
+            <strong [ngClass]="trendClass(trendVsSectorPercent)">{{ formatSignedPercent(trendVsSectorPercent) }}</strong>
+          </div>
+
+          <div class="relative-row">
+            <span>Price Rank</span>
+            <strong>{{ trendRankText }}</strong>
+          </div>
+
+          <div class="relative-row">
+            <span>Available Qty</span>
+            <strong>{{ stock.availableQuantity ?? 0 }}</strong>
+          </div>
+        </ng-container>
+
+        <ng-template #noTrendData>
+          <div class="chart-placeholder">Add a stock to watchlist to see relative insights.</div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</section>

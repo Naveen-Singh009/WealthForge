@@ -1,0 +1,93 @@
+﻿<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>Investor Dashboard</h2>
+      <p>Unified view of portfolio health, market pulse, and latest trades.</p>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <app-reusable-card
+        title="Current Balance"
+        [value]="totalBalance | currency:'USD':'symbol':'1.0-0'"
+        subtitle="Across all portfolios"
+        icon="bi-wallet2"
+      ></app-reusable-card>
+    </div>
+    <div class="col-md-3">
+      <app-reusable-card
+        title="Total Investment"
+        [value]="totalInvestment | currency:'USD':'symbol':'1.0-0'"
+        subtitle="Capital deployed"
+        icon="bi-cash-stack"
+      ></app-reusable-card>
+    </div>
+    <div class="col-md-3">
+      <app-reusable-card
+        title="Profit / Loss"
+        [value]="pnlDisplay"
+        [trendClass]="pnlClass"
+        subtitle="Overall return"
+        icon="bi-activity"
+      ></app-reusable-card>
+    </div>
+    <div class="col-md-3">
+      <app-reusable-card
+        title="Portfolios"
+        [value]="portfolios.length.toString()"
+        subtitle="Active investment books"
+        icon="bi-briefcase-fill"
+      ></app-reusable-card>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-8">
+      <div class="wf-card">
+        <h5 class="mb-3">Recent Transactions</h5>
+        <div class="table-responsive">
+          <table class="table wf-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Asset</th>
+                <th>Qty</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tx of transactions">
+                <td [ngClass]="tx.type === 'BUY' ? 'text-profit' : 'text-loss'">{{ tx.type }}</td>
+                <td>{{ tx.assetSymbol }}</td>
+                <td>{{ tx.quantity !== undefined ? tx.quantity : (holdingsBySymbol[(tx.assetSymbol || '').toUpperCase()] ?? '-') }}</td>
+                <td>{{ tx.amount | currency:'USD':'symbol':'1.0-0' }}</td>
+                <td>{{ tx.timestamp | date:'mediumDate' }}</td>
+              </tr>
+              <tr *ngIf="transactions.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">No recent transactions.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="wf-card h-100">
+        <h5 class="mb-3">Market Overview</h5>
+        <div class="d-flex flex-column gap-2">
+          <div class="market-item" *ngFor="let stock of marketOverview">
+            <div>
+              <strong>{{ stock.symbol }}</strong>
+              <p>{{ stock.name }}</p>
+            </div>
+            <span>{{ stock.currentPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+          <div *ngIf="marketOverview.length === 0" class="text-muted">No market data available.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

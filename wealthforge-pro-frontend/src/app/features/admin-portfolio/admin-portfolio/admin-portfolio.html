@@ -1,0 +1,35 @@
+<section>
+  <div class="wf-page-title">
+    <div>
+      <h2>All Investor Portfolios</h2>
+      <p>Enterprise-level view across all registered investor portfolios.</p>
+    </div>
+  </div>
+
+  <div class="wf-card">
+    <div class="table-responsive">
+      <table class="table wf-table align-middle">
+        <thead>
+          <tr>
+            <th>Investor Name</th>
+            <th>Portfolio Name</th>
+            <th>Total Value</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let portfolio of portfolios">
+            <td>{{ portfolio.investorName || ('Investor #' + (portfolio.investorId ?? 'N/A')) }}</td>
+            <td>{{ portfolio.portfolioName || portfolio.name || 'N/A' }}</td>
+            <td>{{ (portfolio.totalValue ?? portfolio.balance ?? 0) | currency:'USD':'symbol':'1.0-0' }}</td>
+            <td>{{ (portfolio.createdDate || portfolio.createdAt) | date:'mediumDate' }}</td>
+          </tr>
+          <tr *ngIf="portfolios.length === 0">
+            <td colspan="4" class="text-center text-muted py-4">No investor portfolios found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+

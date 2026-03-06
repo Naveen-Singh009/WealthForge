@@ -1,0 +1,51 @@
+﻿.stat-card {
+  min-height: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .label {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .value {
+    margin: 0.2rem 0 0;
+    font-size: 1.6rem;
+    color: #111827;
+  }
+
+  i {
+    font-size: 1.4rem;
+    color: var(--wf-accent-emerald);
+  }
+
+  .subtitle {
+    margin-top: 1.2rem;
+    color: #475569;
+    font-size: 0.9rem;
+  }
+
+  &.profit .value,
+  &.profit i {
+    color: var(--wf-success);
+  }
+
+  &.loss .value,
+  &.loss i {
+    color: var(--wf-danger);
+  }
+}
